@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    
+    <title></title>
+</head>
+<body onload="MyPageLoad()" onresize="MyResize()">
+
+    <img id="imgRadio" src="Art/Beolit1939.jpg" style="position: relative;  width: 2453px; height: 1320px; top: 0px; left: 0px;" />
+
+    <div id="xTuner" style="position: absolute; top: 420px; left: 1150px; vertical-align:middle; width: 700px;height: 320px; word-wrap: break-word; font-family: Times New Roman; font-size: 18pt; font-style: italic; color: white; opacity: 0;"
+         onclick="clicktuner(this)">
+        <br />
+        <ul>
+            <li onclick="clickstation(this)" style="margin-bottom:5px;">RadioBrazil</li>
+            <li onclick="clickstation(this)" style="margin-bottom:5px;">WSM</li>
+            <li onclick="clickstation(this)" style="margin-bottom:5px;">WBAI</li>
+        </ul>
+    </div>
+
+    <audio id="audRadioSpeaker" loop="loop">  <source id="audRadioSpeakerSrc" src="Art/WSM.mp3" /> </audio>
+
+
+    <br />
+    <button type="button" onclick='butTestFeature()' >Test Feature </button>
+    <br />
+    <div id="divdebug">debug<br /></div>
+
+
+
+
+
+</body>
+</html>
+
+
+<script>
+
+    function butTestFeature() {
+        debugprint('TestFeature');
+    }
+
+    function clickstation(xstation) {
+        debugprint("clickstation(), text=" + xstation.innerText);
+
+        fsrc = "Art/WSM.mp3";
+        if (xstation.innerText == "RadioBrazil") {
+            fsrc = "Art/REDE_BLITZ.mp3";
+        }
+        if (xstation.innerText == "WBAI") {
+            fsrc = "Art/WBAI.mp3";
+        }
+
+        cx = document.getElementById('audRadioSpeakerSrc');
+        cx.src = fsrc;
+        cx = document.getElementById('audRadioSpeaker');
+        cx.load();
+
+        var lx = function () {
+            cx = document.getElementById('audRadioSpeaker');
+            cx.currentTime = Math.floor(Math.random() * 300);
+            cx.removeEventListener('loadedmetadata', lx, false);
+            debugprint("time=" + cx.currentTime);
+        }
+
+        cx.addEventListener('loadedmetadata', lx, false);
+        cx.play();
+    }
+
+    function clicktuner(xtuner) {
+        debugprint("clicktuner(), text=" + xtuner.innerText);
+
+        if (xtuner.style.opacity == 0) {
+            xtuner.style.opacity = 1;
+        } else {
+            xtuner.style.opacity = 0;
+        };
+
+        //<div id="xTuner" style="position: absolute; top: 420px; left: 1150px; vertical-align:middle; width: 700px;height: 320px; word-wrap: break-word; font-family: Times New Roman; font-size: 18pt; font-style: italic; color: white; opacity: 0;"
+        //    onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0" onclick="clicktuner(this)">
+
+    }
+
+    var ResizeOSize = new Object();
+    var ResizeName = new Array('imgRadio', 'xTuner');
+
+    var ReposOPos = new Object();
+    var ReposName = new Array('xTuner');
+
+    var ReTextOSize = new Object();
+    var ReTextName = new Array('xTuner');
+
+
+    function my_resize(flag4k) {
+
+        // img = document.getElementById('image_main');
+        // picwidth= parseFloat(img.style.width.toString().replace('px', ''));
+
+        var wx = document.body.clientWidth.toString()
+        var hx = window.innerHeight.toString()
+
+        // var wx = $(window).width();          //document.body.clientWidth.toString()
+        // var hx = $(window).height();         //window.innerHeight.toString()
+
+        debugprint('cw=' + wx + ', ch=' + hx);
+
+        resize_factor = Math.min(wx / 2453, hx / 1320);
+        offs = wx - resize_factor * 2453;
+        offs = offs / 2;
+        offs = Math.max(offs, 0);
+        // var eid = document.getElementById("topsdiv");
+        // eid.style.left = offs.toString() + 'px';
+
+        if (flag4k == 1) { resize_factor = 1; }
+        if (resize_factor > .95 && flag4k == 0) { return; }
+
+        //  debugprint("resize_factor=" + resize_factor.toString());
+
+        var firsttime = false;
+        if (Object.keys(ResizeOSize).length == 0) {
+            firsttime = true;
+        }
+
+        for (i = 0; i < ReTextName.length; i++) {
+            simage = ReTextName[i];
+            img = document.getElementById(simage);
+            //    debugprint("w=" + img.style.width.toString());
+
+            if (firsttime) {
+                ResizeOSize[simage + '_s'] = img.style.fontSize.toString().replace('pt', '');
+            }
+
+            var ns = parseFloat(ResizeOSize[simage + '_s']);
+            ns = ns * resize_factor + .3 * (ns - ns * resize_factor);
+            ns = Math.ceil(ns);
+            img.style.fontSize = ns.toString() + 'pt';
+        }
+
+
+        for (i = 0; i < ResizeName.length; i++) {
+            simage = ResizeName[i];
+            img = document.getElementById(simage);
+            //     debugprint("w=" + img.style.width.toString());
+
+            if (firsttime) {
+                debugprint(simage + " w= " + img.style.width.toString());
+                debugprint(simage + " h= " + img.style.height.toString());
+
+                ResizeOSize[simage + '_w'] = img.style.width.toString().replace('px', '');
+                ResizeOSize[simage + '_h'] = img.style.height.toString().replace('px', '');
+            }
+
+            //    debugprint(simage + ', w=' + img.style.width.toString());
+            var nw = parseFloat(ResizeOSize[simage + '_w']) * resize_factor;
+            var nh = parseFloat(ResizeOSize[simage + '_h']) * resize_factor;
+
+            img.style.width = nw.toString() + 'px';
+            img.style.height = nh.toString() + 'px';
+
+            // if (simage == 'cab1shelf1') {
+            //     alert(simage + "w=" + img.style.width + ", h=" + img.style.height);
+            // }
+        }
+
+        for (i = 0; i < ReposName.length; i++) {
+            simage = ReposName[i];
+            img = document.getElementById(simage);
+            //  alert("w=" + img.style.width.toString());
+
+            if (firsttime) {
+                ResizeOSize[simage + '_t'] = img.style.top.toString().replace('px', '');
+                ResizeOSize[simage + '_l'] = img.style.left.toString().replace('px', '');
+            }
+
+            var nw = parseFloat(ResizeOSize[simage + '_t']) * resize_factor;
+            var nh = parseFloat(ResizeOSize[simage + '_l']) * resize_factor;
+
+            img.style.top = nw.toString() + 'px';
+            img.style.left = nh.toString() + 'px';
+        }
+    }
+
+
+</script>
+
+
+
+<script>
+
+    function tuner_show() {
+        debug_print("tuner show");
+    }
+
+    function MyResize() {
+        my_resize(0);
+    }
+
+    function debugprint(s) {
+        dx = document.getElementById("divdebug");
+        dx.innerHTML = (s + "<br>" + dx.innerHTML);
+    }
+
+    function MyPageLoad() {
+        debugprint("MyPageLoad hello");
+        MyResize();
+    }
+
+
+</script>
+
